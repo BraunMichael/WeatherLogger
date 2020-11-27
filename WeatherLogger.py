@@ -18,8 +18,8 @@ GDOCS_SPREADSHEET_NAME = 'TemperatureLog'
  
 # How long to wait (in seconds) between measurements.
 FREQUENCY_SECONDS = 600
-url = 'https://www.wrh.noaa.gov/mesowest/getobextXml.php?sid=E0597&num=2'
-# url = 'https://api.synopticdata.com/v2/stations/latest?stid=E0597&token=37f690b5ffe34e92b8f68041a7197167'
+# url = 'https://www.wrh.noaa.gov/mesowest/getobextXml.php?sid=E0597&num=2'
+url = 'https://api.synopticdata.com/v2/stations/latest?stid=E0597&token=37f690b5ffe34e92b8f68041a7197167'
 
 
 def login_open_sheet(oauth_key_file, spreadsheet):
