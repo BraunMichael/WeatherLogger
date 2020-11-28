@@ -36,7 +36,12 @@ def login_open_sheet(oauth_key_file, spreadsheet):
         print('Google sheet login failed with error:', ex)
         return None
         #sys.exit(1) 
- 
+
+
+def CtoF(celsiusValue):
+    return celsiusValue * (9/5) + 32
+
+
 print('Logging sensor measurements to {0} every {1} seconds.'.format(GDOCS_SPREADSHEET_NAME, FREQUENCY_SECONDS))
 print('Press Ctrl-C to quit.')
 worksheet = None
@@ -53,7 +58,8 @@ while True:
     try:
         # print('Getting URL')
         response = requests.get(url)
-        data = xmltodict.parse(response.content)
+        data = response.json()
+        # data = xmltodict.parse(response.content)
         # print('Done getting URL')
     except:
         response = None
@@ -61,7 +67,7 @@ while True:
     insideObservationTime = time.strftime('%Y-%m-%d %H:%M', time.localtime(time.time()))
     try:
         # print('Getting Temperature')
-        insideTemperature = int(dhtDevice.temperature * (9/5) + 32)
+        insideTemperature = int(CtoF(dhtDevice.temperature))
         insideHumidity = int(dhtDevice.humidity)
         print(str(insideObservationTime) + ' Temperature: ' + str(insideTemperature), end='\r')
         # print('Temperature is: ' + str(insideTemperature))
@@ -78,10 +84,11 @@ while True:
 
     if data:
         # print('Parsing downloaded data')
-        observation = data['station']['ob'][0]
-        outsideObservationTime = observation['@time']
-        outsideTemperature = int(observation['variable'][0]['@value'])
-        outsideHumidity = int(observation['variable'][2]['@value'])
+        observation = data['STATION'][0]['OBSERVATIONS']
+        outsideObservationTime = observation['air_temp_value_1']['date_time']
+        outsideTemperature = int(CtoF(observation['air_temp_value_1']['value']))
+        outsideHumidity = int(observation['relative_humidity_value_1']['value'])
+        outsideDewpoint = int(CtoF(observation['dew_point_temperature_value_1d']['value']))
         try:
             worksheet.append_row((insideObservationTime, insideTemperature, insideHumidity, outsideObservationTime, outsideTemperature, outsideHumidity, insideTemperature - outsideTemperature))
         except: # pylint: disable=bare-except, broad-except
