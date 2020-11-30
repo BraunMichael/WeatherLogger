@@ -19,7 +19,6 @@ GDOCS_SPREADSHEET_NAME = 'TemperatureLog'
  
 # How long to wait (in seconds) between measurements.
 FREQUENCY_SECONDS = 600
-# url = 'https://www.wrh.noaa.gov/mesowest/getobextXml.php?sid=E0597&num=2'
 url = 'https://api.synopticdata.com/v2/stations/latest?stid=E0597&token=37f690b5ffe34e92b8f68041a7197167'
 
 
@@ -36,7 +35,6 @@ def login_open_sheet(oauth_key_file, spreadsheet):
         and make sure spreadsheet is shared to the client_email address in the OAuth .json file!')
         print('Google sheet login failed with error:', ex)
         return None
-        #sys.exit(1) 
 
 
 def CtoF(celsiusValue):
@@ -49,29 +47,22 @@ worksheet = None
 
 while True:
     if worksheet is None:
-        # print('Getting worksheet')
         worksheet = login_open_sheet(GDOCS_OAUTH_JSON, GDOCS_SPREADSHEET_NAME)
-        # print('Done getting worksheet')
         if worksheet is None:
             print("Trying again in 20 seconds")
             time.sleep(20)        
             continue
     try:
-        # print('Getting URL')
         response = requests.get(url)
         data = response.json()
-        # data = xmltodict.parse(response.content)
-        # print('Done getting URL')
     except:
         response = None
         data = None
     insideObservationTime = time.strftime('%Y-%m-%d %H:%M', time.localtime(time.time()))
     try:
-        # print('Getting Temperature')
         insideTemperature = int(CtoF(dhtDevice.temperature))
         insideHumidity = int(dhtDevice.humidity)
         print(str(insideObservationTime) + ' Temperature: ' + str(insideTemperature), end='\r')
-        # print('Temperature is: ' + str(insideTemperature))
     except RuntimeError as e:
         print(str(insideObservationTime) + " Reading from DHT failure: ", e.args)
         print("Trying again in 20 seconds")
@@ -84,7 +75,6 @@ while True:
         continue
 
     if data:
-        # print('Parsing downloaded data')
         observation = data['STATION'][0]['OBSERVATIONS']
         outsideObservationTime = parse(observation['air_temp_value_1']['date_time']).astimezone(tz.gettz('America/Los Angeles')).strftime('%Y-%m-%d %H:%M')
         outsideTemperature = int(CtoF(observation['air_temp_value_1']['value']))
