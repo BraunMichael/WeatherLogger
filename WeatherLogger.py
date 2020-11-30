@@ -7,6 +7,7 @@ import board
 import sys
 import datetime
 import gspread
+from dateutil import tz, parse
 from oauth2client.service_account import ServiceAccountCredentials
 
 DHT_TYPE = adafruit_dht.DHT22
@@ -85,7 +86,7 @@ while True:
     if data:
         # print('Parsing downloaded data')
         observation = data['STATION'][0]['OBSERVATIONS']
-        outsideObservationTime = observation['air_temp_value_1']['date_time']
+        outsideObservationTime = parse(observation['air_temp_value_1']['date_time']).astimezone(tz.gettz('America/Los Angeles')).strftime('%Y-%m-%d %H:%M')
         outsideTemperature = int(CtoF(observation['air_temp_value_1']['value']))
         outsideHumidity = int(observation['relative_humidity_value_1']['value'])
         outsideDewpoint = int(CtoF(observation['dew_point_temperature_value_1d']['value']))
